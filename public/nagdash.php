@@ -16,5 +16,5 @@ $controller = new \CranleighSchool\NagDash\Controllers\DashboardController([
     'mock_state_file' => $mock_state_file ?? null,
 ]);
 
-$twig = nagdash_twig();
-echo $twig->render('dashboard.twig', $controller->getData());
+echo nagdash_twig()->render('dashboard.twig', $controller->getData());
+

@@ -15,8 +15,7 @@ if (array_key_exists('nagdash_unwanted_hosts', $_COOKIE)) {
     }
 }
 
-$twig = nagdash_twig();
-echo $twig->render('layout.twig', [
+echo nagdash_twig()->render('layout.twig', [
     'csrf_token' => $_SESSION['csrf_token'],
     'nagios_hosts' => $nagios_hosts,
     'refresh_every_ms' => $refresh_every_ms ?? 20000,

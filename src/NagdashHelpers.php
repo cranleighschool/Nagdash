@@ -7,9 +7,9 @@ use InvalidArgumentException;
 
 class NagdashHelpers
 {
-    public static function print_tag($tag_name, $nagios_hostcount)
+    public static function print_tag(string $tag_name, int $nagios_hostcount)
     {
-        if (($nagios_hostcount) > 1) {
+        if ($nagios_hostcount > 1) {
             return "<span class='tag tag_{$tag_name}'>{$tag_name}</span>";
         } else {
             return false;
@@ -21,15 +21,15 @@ class NagdashHelpers
      *
      * Parameters
      *  $hostname - the hostname of the endpoint
-     *  $port     - the port to connect to
+     *  $port - the port to connect to
      *  $protocol - the protocol used (http or https)
-     *  $url      - the endpoint url on the host
+     *  $url - the endpoint url on the host
      *
      *  Return an array of the form
      *  [ "errors" => true/false, "details" => "json_decoded data",
      *    "curl_stats" => "stats from the curl call"]
      */
-    public static function fetch_json($hostname, $port, $protocol, $url): array
+    public static function fetch_json(string $hostname, int $port, string $protocol, string $url): array
     {
 
         $ch = curl_init("$protocol://$hostname:$port$url");
@@ -47,26 +47,35 @@ class NagdashHelpers
             $errmsg = 'Attempt to hit API failed, sorry. ';
             $errmsg .= 'Curl said: '.curl_error($ch);
 
-            return ['errors' => true,
-                'details' => $errmsg];
+            return [
+                'errors' => true,
+                'details' => $errmsg,
+            ];
 
         } elseif ($info['http_code'] != 200) {
             $errmsg = 'Attempt to hit API failed, sorry. ';
             $errmsg .= "Curl said: HTTP Status {$info['http_code']}";
 
-            return ['errors' => true,
-                'details' => $errmsg];
+            return [
+                'errors' => true,
+                'details' => $errmsg,
+            ];
         } else {
             $ret['curl_stats'] = ["$hostname:$port" => curl_getinfo($ch)];
             $ret['details'] = json_decode($json, true);
         }
 
-        curl_close($ch);
+        if (phpversion() < '8.5') {
+            curl_close($ch);
+        }
 
         return $ret;
     }
 
-    public static function deep_ksort(&$arr)
+    /**
+     * @param array $arr
+     */
+    public static function deep_ksort(array &$arr): void
     {
         if (isset($_COOKIE['sort_descending'])) {
             $filter_sort_descending = (int) $_COOKIE['sort_descending'];
@@ -91,23 +100,6 @@ class NagdashHelpers
     }
 
     /**
-     * stupid template rendering function. This basically just works around
-     * the whole global variables thing and gives you a way to pass variables
-     * to a PHP rendered template.
-     *
-     * Parameters:
-     *   $template - path to the template to render (relative to callsite)
-     *   $vars     - array of variables used for rendering
-     *
-     * Returns nothing but renders the template in place
-     */
-    public static function render($template, $vars = [])
-    {
-        extract($vars);
-        include $template;
-    }
-
-    /**
      * helper function to compare last state change
      *
      * Parameter:
@@ -116,7 +108,7 @@ class NagdashHelpers
      *
      * Returns -1, 0 or 1 depending on state comparison
      */
-    public static function cmp_last_state_change($a, $b)
+    public static function cmp_last_state_change(array $a, array $b): int
     {
         if (isset($_COOKIE['sort_descending'])) {
             $filter_sort_descending = (int) $_COOKIE['sort_descending'];
@@ -143,19 +135,16 @@ class NagdashHelpers
      *
      * Parameters:
      *  $hostname - hostname of the nagios instance
-     *  $port     - port the nagios api instance is listening on
+     *  $port - port the nagios api instance is listening to on
      *  $protocol - the protocol to use for the transport (http/s)
      *  $api_type - the type of API to use (nagiosapi, livestatus, ...)
      *
      * Returns an array of [$state, $mapping, $curl_stats]
      */
-    public static function fetch_state($hostname, $port, $protocol, $url, $api_type): array
+    public static function fetch_state(string $hostname, int $port, string $protocol, ?string $url, ?string $api_type): array
     {
-
-        $nagios_api = NagdashHelpers::get_nagios_api_object($api_type, $hostname,
-            $port, $protocol, $url);
-        // TODO: fix up the API implementations so they return the same
-        // formatted data. There is no real need to have this switch case here
+        $nagios_api = NagdashHelpers::get_nagios_api_object($api_type, $hostname, $port, $protocol, $url);
+        // TODO: fix up the API implementations so they return the same formatted data. There is no real need to have this switch case here
         switch ($api_type) {
             case 'livestatus':
                 $ret = $nagios_api->getState();
@@ -165,7 +154,7 @@ class NagdashHelpers
                 break;
             case 'nagios-api':
                 $ret = $nagios_api->getState();
-                if ($ret['errors'] == true) {
+                if ($ret['errors']) {
                     $state = $ret['details'];
                 } else {
                     $state = $ret['details']['content'];
@@ -190,7 +179,7 @@ class NagdashHelpers
      *
      *  Returns [$state, $api_cols, $errors, $curl_stats]
      */
-    public static function get_nagios_host_data($nagios_hosts, $unwanted_hosts, $api_type): array
+    public static function get_nagios_host_data(array $nagios_hosts, array $unwanted_hosts, string $api_type): array
     {
         $state = [];
         $errors = [];
@@ -220,15 +209,19 @@ class NagdashHelpers
      * parse the state array into a format that we can easily display
      *
      * Parameters:
-     *  $state  - the array of states from all nagios instances
+     *  $state - the array of states from all nagios instances
      *  $filter - the regex to filter out hosts
      *  $api_cols - API column mapping from the nagios API
      *  $filter_select_last_state_change - A numeric string we'll use to filter by last state change
      *
      *  Returns [$host_summary, $service_summary, $down_hosts, $known_hosts, $known_services, $broken_services];
      */
-    public static function parse_nagios_host_data($state, $filter, $api_cols, $filter_select_last_state_change): array
-    {
+    public static function parse_nagios_host_data(
+        array $state,
+        string $filter,
+        array $api_cols,
+        string $filter_select_last_state_change
+    ): array {
 
         $host_summary = [];
         $service_summary = [];
@@ -255,7 +248,7 @@ class NagdashHelpers
                     }
                     // Populate the array.
                     if ($host_detail['last_state_change'] >= $state_change_backstop) {
-                        array_push($$array_name, [
+                        $$array_name[] = [
                             'hostname' => $hostname,
                             'host_state' => $host_detail[$api_cols['state']],
                             'duration' => Carbon::createFromTimestamp($host_detail['last_state_change'])->diffForHumans(),
@@ -263,11 +256,11 @@ class NagdashHelpers
                             'current_attempt' => $host_detail['current_attempt'],
                             'max_check_attempts' => $host_detail[$api_cols['max_attempts']],
                             'tag' => $host_detail['tag'],
-                            'is_hard' => ($host_detail['current_attempt'] >= $host_detail[$api_cols['max_attempts']]) ? true : false,
-                            'is_downtime' => (isset($host_detail['scheduled_downtime_depth']) && $host_detail['scheduled_downtime_depth'] > 0) ? true : false,
-                            'is_ack' => ($host_detail[$api_cols['ack']] > 0) ? true : false,
-                            'is_enabled' => ($host_detail['notifications_enabled'] > 0) ? true : false,
-                        ]);
+                            'is_hard' => $host_detail['current_attempt'] >= $host_detail[$api_cols['max_attempts']],
+                            'is_downtime' => isset($host_detail['scheduled_downtime_depth']) && $host_detail['scheduled_downtime_depth'] > 0,
+                            'is_ack' => $host_detail[$api_cols['ack']] > 0,
+                            'is_enabled' => $host_detail['notifications_enabled'] > 0,
+                        ];
                     }
                 }
 
@@ -305,7 +298,7 @@ class NagdashHelpers
                             }
                         }
                         if ($service_detail['last_state_change'] >= $state_change_backstop) {
-                            array_push($$array_name, [
+                            $$array_name[] = [
                                 'hostname' => $hostname,
                                 'service_name' => $service_name,
                                 'service_state' => $service_detail[$api_cols['state']],
@@ -315,12 +308,12 @@ class NagdashHelpers
                                 'current_attempt' => $service_detail['current_attempt'],
                                 'max_attempts' => $service_detail[$api_cols['max_attempts']],
                                 'tag' => $host_detail['tag'],
-                                'is_hard' => ($service_detail['current_attempt'] >= $service_detail[$api_cols['max_attempts']]) ? true : false,
-                                'is_downtime' => ((isset($service_detail['scheduled_downtime_depth']) && $service_detail['scheduled_downtime_depth'] > 0) || (isset($host_detail['scheduled_downtime_depth']) && $host_detail['scheduled_downtime_depth'] > 0)) ? true : false,
+                                'is_hard' => $service_detail['current_attempt'] >= $service_detail[$api_cols['max_attempts']],
+                                'is_downtime' => (isset($service_detail['scheduled_downtime_depth']) && $service_detail['scheduled_downtime_depth'] > 0) || (isset($host_detail['scheduled_downtime_depth']) && $host_detail['scheduled_downtime_depth'] > 0),
                                 'downtime_remaining' => $downtime_remaining,
-                                'is_ack' => ($service_detail[$api_cols['ack']] > 0) ? true : false,
-                                'is_enabled' => ($service_detail['notifications_enabled'] > 0) ? true : false,
-                            ]);
+                                'is_ack' => $service_detail[$api_cols['ack']] > 0,
+                                'is_enabled' => $service_detail['notifications_enabled'] > 0,
+                            ];
                         }
                     }
                     if ($host_detail[$api_cols['state']] == 0) {
@@ -344,9 +337,13 @@ class NagdashHelpers
      * this is basically a factory function to give you back the proper nagios
      * API object based on the api type
      */
-    public static function get_nagios_api_object($api_type, $hostname, $port = null,
-        $protocol = null, $url = null)
-    {
+    public static function get_nagios_api_object(
+        string $api_type,
+        string $hostname,
+        ?int $port = null,
+        ?string $protocol = null,
+        ?string $url = null
+    ) {
         switch ($api_type) {
             case 'livestatus':
                 $nagios_api = new NagiosLivestatus($hostname, $port, $protocol, $url);

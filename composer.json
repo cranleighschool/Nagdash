@@ -2,7 +2,8 @@
     "require": {
         "twig/twig": "^3.0",
         "nesbot/carbon": "^3.11",
-        "ext-json": "*"
+        "ext-json": "*",
+      "ext-curl": "*"
     },
     "autoload": {
         "psr-4": {

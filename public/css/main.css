@@ -137,13 +137,14 @@ table#broken_hosts tr td span.controls {
 }
 
 table#broken_services tr td span.detail {
-  display: none;
+  display: block;
+  font-weight: lighter;
 }
 
-table#broken_services tr:hover td span.detail {
-  display: block;
-  font-size: 0.6em;
-}
+/*table#broken_services tr:hover td span.detail {*/
+/*  display: block;*/
+/*  font-size: 0.6em;*/
+/*}*/
 
 table#broken_services tr:hover td span.controls {
   display: inline-block;
