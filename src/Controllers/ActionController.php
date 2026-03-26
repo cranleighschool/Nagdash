@@ -5,35 +5,36 @@ namespace Nagdash\Controllers;
 class ActionController
 {
     private array $nagios_hosts;
+
     private string $api_type;
 
     public function __construct(array $nagios_hosts, string $api_type)
     {
         $this->nagios_hosts = $nagios_hosts;
-        $this->api_type     = $api_type;
+        $this->api_type = $api_type;
     }
 
     public function handle(): string
     {
         $supported_methods = ['ack', 'downtime', 'enable', 'disable'];
 
-        if (!isset($_POST['nag_host'])) {
+        if (! isset($_POST['nag_host'])) {
             return 'Are you calling this manually? This should be called by Nagdash only.';
         }
 
         $nagios_instance = $_POST['nag_host'];
-        $action          = $_POST['action'];
+        $action = $_POST['action'];
 
-        if (!in_array($action, $supported_methods)) {
+        if (! in_array($action, $supported_methods)) {
             return "Nagios-api does not support this action ({$action}) yet.";
         }
 
         $details = [
-            'host'     => $_POST['hostname'],
-            'service'  => $_POST['service'] ?: null,
-            'author'   => function_exists('nagdash_get_user') ? nagdash_get_user() : 'Nagdash',
-            'duration' => !empty($_POST['duration']) ? ((int) $_POST['duration'] * 60) : null,
-            'comment'  => "{$action} from Nagdash",
+            'host' => $_POST['hostname'],
+            'service' => $_POST['service'] ?: null,
+            'author' => function_exists('nagdash_get_user') ? nagdash_get_user() : 'Nagdash',
+            'duration' => ! empty($_POST['duration']) ? ((int) $_POST['duration'] * 60) : null,
+            'comment' => "{$action} from Nagdash",
         ];
 
         $nagios_api = null;

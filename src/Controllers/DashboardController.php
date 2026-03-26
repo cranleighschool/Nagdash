@@ -5,18 +5,23 @@ namespace Nagdash\Controllers;
 class DashboardController
 {
     private array $nagios_hosts;
+
     private string $api_type;
+
     private string $filter;
+
     private bool $sort_by_time;
+
     private bool $enable_blinking;
+
     private ?string $mock_state_file;
 
     public function __construct(array $config)
     {
-        $this->nagios_hosts    = $config['nagios_hosts'];
-        $this->api_type        = $config['api_type'];
-        $this->filter          = $config['filter'] ?? '';
-        $this->sort_by_time    = (bool) ($config['sort_by_time'] ?? false);
+        $this->nagios_hosts = $config['nagios_hosts'];
+        $this->api_type = $config['api_type'];
+        $this->filter = $config['filter'] ?? '';
+        $this->sort_by_time = (bool) ($config['sort_by_time'] ?? false);
         $this->enable_blinking = (bool) ($config['enable_blinking'] ?? false);
         $this->mock_state_file = $config['mock_state_file'] ?? null;
     }
@@ -32,7 +37,7 @@ class DashboardController
         }
 
         $filter = $this->filter;
-        if (!empty($_COOKIE['nagdash_hostfilter'])) {
+        if (! empty($_COOKIE['nagdash_hostfilter'])) {
             $filter = $_COOKIE['nagdash_hostfilter'];
         }
 
@@ -45,11 +50,11 @@ class DashboardController
             : null;
 
         if ($this->mock_state_file !== null) {
-            $data       = json_decode(file_get_contents($this->mock_state_file), true);
-            $state      = $data['content'];
-            $errors     = [];
+            $data = json_decode(file_get_contents($this->mock_state_file), true);
+            $state = $data['content'];
+            $errors = [];
             $curl_stats = [];
-            $api_cols   = [];
+            $api_cols = [];
         } else {
             [$state, $api_cols, $errors, $curl_stats] = \NagdashHelpers::get_nagios_host_data(
                 $this->nagios_hosts, $unwanted_hosts, $this->api_type
@@ -83,27 +88,27 @@ class DashboardController
         }
 
         return [
-            'errors'                       => $errors,
-            'curl_stats'                   => $curl_stats,
-            'host_summary'                 => $host_summary,
-            'service_summary'              => $service_summary,
-            'down_hosts'                   => $down_hosts,
-            'known_hosts'                  => $known_hosts,
-            'broken_services'              => $broken_services,
-            'known_services'               => $known_services,
-            'nagios_host_status'           => [0 => 'UP', 1 => 'DOWN', 2 => 'UNREACHABLE'],
-            'nagios_service_status'        => [0 => 'OK', 1 => 'WARNING', 2 => 'CRITICAL', 3 => 'UNKNOWN'],
-            'nagios_host_status_colour'    => [0 => 'status_green', 1 => 'status_red', 2 => 'status_yellow'],
+            'errors' => $errors,
+            'curl_stats' => $curl_stats,
+            'host_summary' => $host_summary,
+            'service_summary' => $service_summary,
+            'down_hosts' => $down_hosts,
+            'known_hosts' => $known_hosts,
+            'broken_services' => $broken_services,
+            'known_services' => $known_services,
+            'nagios_host_status' => [0 => 'UP', 1 => 'DOWN', 2 => 'UNREACHABLE'],
+            'nagios_service_status' => [0 => 'OK', 1 => 'WARNING', 2 => 'CRITICAL', 3 => 'UNKNOWN'],
+            'nagios_host_status_colour' => [0 => 'status_green', 1 => 'status_red', 2 => 'status_yellow'],
             'nagios_service_status_colour' => [0 => 'status_green', 1 => 'status_yellow', 2 => 'status_red', 3 => 'status_grey'],
-            'enable_blinking'              => $this->enable_blinking,
-            'timespans'                    => [
+            'enable_blinking' => $this->enable_blinking,
+            'timespans' => [
                 '10 minutes' => 10,
                 '30 minutes' => 30,
                 '60 minutes' => 60,
-                '2 hours'    => 120,
-                '12 hours'   => 720,
-                '1 day'      => 1440,
-                '7 days'     => 10080,
+                '2 hours' => 120,
+                '12 hours' => 720,
+                '1 day' => 1440,
+                '7 days' => 10080,
             ],
         ];
     }

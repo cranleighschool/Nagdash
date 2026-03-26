@@ -61,4 +61,3 @@ interface iNagiosConnection
      */
     public function setDowntime($target);
 }
-

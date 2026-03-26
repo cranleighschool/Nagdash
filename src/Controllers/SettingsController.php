@@ -13,13 +13,14 @@ class SettingsController
 
     public function handle(): void
     {
-        if (!isset($_SERVER['HTTP_REFERER'])) {
+        if (! isset($_SERVER['HTTP_REFERER'])) {
             echo 'Woah, what did you just try and do?';
+
             return;
         }
 
         $return_path = parse_url($_SERVER['HTTP_REFERER'], PHP_URL_PATH);
-        $hosts       = array_column($this->nagios_hosts, 'tag');
+        $hosts = array_column($this->nagios_hosts, 'tag');
 
         $hostfilter = $_POST['hostfilter'] ?? '';
         unset($_POST['hostfilter']);
@@ -32,7 +33,7 @@ class SettingsController
         setcookie('sort_descending', isset($_POST['sort_descending']) ? '1' : '0', time() + 60 * 60 * 24 * 365);
 
         $submitted_hosts = $_POST;
-        $unwanted_hosts  = array_diff($hosts, array_keys($submitted_hosts));
+        $unwanted_hosts = array_diff($hosts, array_keys($submitted_hosts));
         setcookie('nagdash_unwanted_hosts', serialize($unwanted_hosts), time() + 60 * 60 * 24 * 365);
 
         header("Location: {$return_path}");
