@@ -5,8 +5,11 @@ namespace CranleighSchool\NagDash;
 abstract class AbstractNagiosConnection implements NagiosConnection
 {
     public string $hostname;
+
     public int $port;
+
     public string $protocol;
+
     public string $url;
 
     abstract protected function buildActionUrl(string $method): string;
