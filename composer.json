@@ -1,7 +1,7 @@
 {
     "require": {
         "twig/twig": "^3.0",
-        "nesbot/carbon": "^3.11",
+        "nesbot/carbon": "^2.0",
         "ext-json": "*"
     },
     "autoload": {

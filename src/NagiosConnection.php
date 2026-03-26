@@ -27,7 +27,6 @@ interface NagiosConnection
      *              ]
      *
      * @param  array{host: string, service: string, comment: string, author: string, duration: int}  $details
-     *
      * @return array{errors: bool, details: string}
      */
     public function acknowledge(array $details): array;

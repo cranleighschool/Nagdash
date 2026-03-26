@@ -41,7 +41,7 @@ class DashboardController
         $filter = $this->filter;
         if (! empty($_COOKIE['nagdash_hostfilter'])) {
             $candidate = $_COOKIE['nagdash_hostfilter'];
-            if (@preg_match('/' . $candidate . '/', '') !== false) {
+            if (@preg_match('/'.$candidate.'/', '') !== false) {
                 $filter = $candidate;
             }
         }
