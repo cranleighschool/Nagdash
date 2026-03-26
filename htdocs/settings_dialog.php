@@ -20,7 +20,7 @@
 </fieldset>
 <fieldset>
 <legend>Hostname regex</legend>
-<input type="input" name="hostfilter" value="<?php echo $_COOKIE['nagdash_hostfilter']; ?>">
+<input type="input" name="hostfilter" value="<?php echo isset($_COOKIE['nagdash_hostfilter']) ? htmlspecialchars($_COOKIE['nagdash_hostfilter']) : ''; ?>">
 </fieldset>
 <legend>Last state change</legend>
 <div class="settings_group">

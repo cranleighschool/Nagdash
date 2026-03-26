@@ -234,13 +234,13 @@ class NagdashHelpers {
                     if ($host_detail['last_state_change'] >= $state_change_backstop) {
                         array_push($$array_name, array(
                             "hostname" => $hostname,
-                            "host_state" => $host_detail{$api_cols['state']},
+                            "host_state" => $host_detail[$api_cols['state']],
                             "duration" => timeago($host_detail['last_state_change']),
                             "detail" => $host_detail['plugin_output'],
                             "current_attempt" => $host_detail['current_attempt'],
-                            "max_check_attempts" => $host_detail['max_check_attempts'],
+                            "max_check_attempts" => $host_detail[$api_cols['max_attempts']],
                             "tag" => $host_detail['tag'],
-                            "is_hard" => ($host_detail['current_attempt'] >= $host_detail['max_check_attempts']) ? true : false,
+                            "is_hard" => ($host_detail['current_attempt'] >= $host_detail[$api_cols['max_attempts']]) ? true : false,
                             "is_downtime" => (isset($host_detail['scheduled_downtime_depth']) && $host_detail['scheduled_downtime_depth'] > 0) ? true : false,
                             "is_ack" => ($host_detail[$api_cols['ack']] > 0) ? true : false,
                             "is_enabled" => ($host_detail['notifications_enabled'] > 0) ? true : false,
