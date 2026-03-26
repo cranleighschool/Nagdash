@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Nagios Dashboard</title>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+<script type="text/javascript">
+document.refresh_every_ms = {{ refresh_every_ms }};
+</script>
+<script src="js/nagdash.js"></script>
+<link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/css/bootstrap.min.css" rel="stylesheet">
+<link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/css/bootstrap-responsive.min.css" rel="stylesheet">
+<link rel="stylesheet" href="css/blinkftw.css">
+<link rel="stylesheet" href="css/main.css">
+<style type="text/css">
+{% for host in nagios_hosts %}
+  .tag_{{ host.tag }} { background-color: {{ host.tagcolour }} }
+{% endfor %}
+</style>
+{% if extra_css %}
+<link rel="stylesheet" href="{{ extra_css }}">
+{% endif %}
+</head>
+<body>
+  <div id="spinner"><h3><img src="images/ajax-loader.gif" align="absmiddle"> Refreshing...</h3></div>
+  <div id="nagioscontainer"></div>
+  {% include 'partials/settings.twig' %}
+
+<script>
+    $(document).keypress(function(e) {
+        if (e.which == 115) { // "s"
+            $("#settings_modal").modal();
+        }
+    });
+    $(document).ready(load_nagios_data({{ show_refresh_spinner ? 'true' : 'false' }}));
+</script>
+</body>
+</html>

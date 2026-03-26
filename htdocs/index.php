@@ -1,55 +1,26 @@
 <?php
 error_reporting(E_ALL ^ E_NOTICE);
-require_once('../config.php');
-require_once('../phplib/utils.php');
+require_once '../src/bootstrap.php';
 
+$unwanted_hosts = [];
 if (array_key_exists('nagdash_unwanted_hosts', $_COOKIE)) {
-    $unwanted_hosts = unserialize($_COOKIE['nagdash_unwanted_hosts']);
-} else {
-    $unwanted_hosts = array();
+    $u = unserialize($_COOKIE['nagdash_unwanted_hosts']);
+    if (is_array($u)) {
+        $unwanted_hosts = $u;
+    }
 }
 
-if (!is_array($unwanted_hosts)) $unwanted_hosts = array();
-
-?>
-<html>
-<head>
-<title>Nagios Dashboard</title>
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
-<script type="text/javascript">
-document.refresh_every_ms = <?php echo (isset($refresh_every_ms) ? $refresh_every_ms : 20000); ?>;
-</script>
-<script src="js/nagdash.js"></script>
-<link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/css/bootstrap.min.css" rel="stylesheet">
-<link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/css/bootstrap-responsive.min.css" rel="stylesheet">
-<link rel="stylesheet" href="css/blinkftw.css">
-<link rel="stylesheet" href="css/main.css">
-<style type="text/css">
-  <?php foreach ($nagios_hosts as $host) {
-        echo ".tag_{$host['tag']}   { background-color: {$host['tagcolour']} }\n";
-  } ?>
-</style>
-<?php
-    if (isset($extra_css)) {
-        echo "<link rel=\"stylesheet\" href=\"{$extra_css}\">";
-    }
-?>
-</head>
-<body>
-  <div id="spinner"><h3><img src="images/ajax-loader.gif" align="absmiddle"> Refreshing...</h3></div>
-  <div id="nagioscontainer"></div>
-  <?php NagdashHelpers::render("settings_dialog.php", ["nagios_hosts" => $nagios_hosts,
-                                                       "unwanted_hosts" => $unwanted_hosts]);?>
-
-
-<script>
-    $(document).keypress(function(e) {
-        if (e.which == 115) { // "s"
-            $("#settings_modal").modal();
-        }
-    });
-    $(document).ready(load_nagios_data(<?php echo ($show_refresh_spinner === true)?>));
-</script>
-</body>
-</html>
+$twig = nagdash_twig();
+echo $twig->render('layout.twig', [
+    'nagios_hosts'                     => $nagios_hosts,
+    'refresh_every_ms'                 => $refresh_every_ms ?? 20000,
+    'show_refresh_spinner'             => $show_refresh_spinner ?? false,
+    'extra_css'                        => $extra_css ?? '',
+    'unwanted_hosts'                   => $unwanted_hosts,
+    'select_last_state_change_options' => $select_last_state_change_options ?? [],
+    'sort_by_time'                     => $sort_by_time ?? false,
+    'cookie_hostfilter'                => $_COOKIE['nagdash_hostfilter'] ?? '',
+    'cookie_select_last_state_change'  => isset($_COOKIE['select_last_state_change']) ? (int) $_COOKIE['select_last_state_change'] : null,
+    'cookie_sort_by_time'              => isset($_COOKIE['sort_by_time']) ? (int) $_COOKIE['sort_by_time'] : null,
+    'cookie_sort_descending'           => isset($_COOKIE['sort_descending']) ? (int) $_COOKIE['sort_descending'] : null,
+]);
