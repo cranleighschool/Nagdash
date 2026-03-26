@@ -1,5 +1,50 @@
+    <style type="text/css">
+    h3                  { margin-top: 3px; margin-bottom: 3px; font-size: 1.5em }
+    /*body                { font-family: "HelveticaNeue-Medium", Helvetica, Arial, sans-serif; margin: 10px; margin-top: 0px }
+    */
+    
+    table,td            { border: none; padding: 2px; border-spacing: 2px; font-size: 1.4em }
+    table               { border: 1px solid #c6c6c6; background-color: #F0F0F0; border-collapse: separate; 
+                            *border-collapse: collapse; -webkit-border-radius: 4px;
+                            -moz-border-radius: 4px; border-radius: 4px; }
+    th                  { border: 1px black solid; background-color: #D8D8D8 }
+    .widetable          { width: 100%; clear: both }
+    .bold               { font-weight: bold; }
+    .status_green       { background-color: #269926; color: white; padding: 3px }
+    .status_red         { background-color: #FF4040; color: white; padding: 3px }
+    .status_yellow      { background-color: #FFDE40; color: black; padding: 3px }
+    .status_grey        { background-color: #444444; color: white; padding: 3px }
+    .known_hosts        { background-color: lightgrey; color: black }
+    .known_hosts_desc   { color: #686868 }
+    .desc               { font-size: 0.8em }
+    #info-window-text   { padding: 30px; vertical-align: middle }
+    .tag                { font-size: 0.6em; color: white; padding: 4px; -webkit-border-radius: 5px; }
+    .left               { float: left}
+    .totals             { text-align: right;right: 0px; padding: 10px; border: 0px #848484 solid; position: absolute; background: #F0F0F0;
+                            -webkit-border-radius: 4px; -moz-border-radius: 4px; border-radius: 4px; margin-top: 0px; padding-bottom: 4px; }
+    table#broken_services tr td span.controls { display: none; float: right }
+    table#broken_hosts    tr td span.controls { display: none; float: right }
+    table#broken_services tr:hover td span.controls { display:inline-block; }
+    table#broken_hosts    tr:hover td span.controls { display:inline-block; }
+    #info-window        { display: none; position: absolute; top: 50%; width: 400px; text-align: center; left: 50%; margin-left: -200px;
+                          border: 1px #848484 solid; -webkit-border-radius: 4px; -moz-border-radius: 4px; border-radius: 4px; margin-top: -75px;
+                          background: #F0F0F0; font-family: "HelveticaNeue-Medium", Helvetica, Arial, sans-serif; padding: 20px }
+    .known_service      { font-size: 1em }
+        #date-span {
+            display: inline;
+            position: absolute;
+            top:10px;
+            color:#0c223f;
+            font-size:2em;
+            font-family: "AspW-Rg", Arial;
+            text-transform: uppercase;
+            font-weight: bolder;
+        }
+    </style>
+
 <?php
 error_reporting(E_ALL ^ E_NOTICE);
+ini_set("display_errors", "off");
 require_once 'config.php';
 require_once 'utils.php';
 require_once 'timeago.php';
@@ -7,6 +52,14 @@ require_once 'timeago.php';
 if (!function_exists('curl_init')) {
   die("ERROR: The PHP curl extension must be installed for Nagdash to function");
 }
+function sanitizeDurationMetrics($str) {
+	    $str = str_replace("minutes", "mins", $str);
+	    $str = str_replace("hours", "hrs", $str);
+	    $str = str_replace("seconds", "secs", $str);
+	    $str = str_replace("minute", "min", $str);
+	    $str = str_replace("hour", "hr", $str);
+	    return $str;
+    }
 
 $nagios_host_status = array(0 => "UP", 1 => "DOWN", 2 => "UNREACHABLE");
 $nagios_service_status = array(0 => "OK", 1 => "WARNING", 2 => "CRITICAL", 3 => "UNKNOWN");
@@ -159,13 +212,15 @@ foreach($state as $hostname => $host_detail) {
 }
 ksort($host_summary);
 ksort($service_summary);
-?>
+date_default_timezone_set('Europe/London');
 
+?>
+    <span id="date-span"><?php echo date('D jS M Y H:i:s'); ?></span>
 <div id="info-window"><button class="close" onClick='$("#info-window").fadeOut("fast");'>&times;</button><div id="info-window-text"></div></div>
 <div class="frame">
     <div class="section">
       <div class="header">
-        <h3>Host status</h3>
+        <h3>Nagios Status</h3>
         <p class="totals"><b>Total:</b> <?php foreach($host_summary as $state => $count) { echo "<span class='{$nagios_host_status_colour[$state]}'>{$count}</span> "; } ?></p>
       </div>
 <?php if (count($down_hosts) > 0) { ?>
@@ -175,7 +230,7 @@ ksort($service_summary);
     foreach($down_hosts as $host) {
         $controls = build_controls($host['tag'], $host['hostname'], '');
         echo "<tr id='host_row' class='{$nagios_host_status_colour[$host['host_state']]}'>";
-        echo "<td>{$host['hostname']} " . print_tag($host['tag']) . " <span class='controls'>{$controls}</span></td>";
+        echo "<td >{$host['hostname']} " . print_tag($host['tag']) . " <span class='controls'>{$controls}</span></td>";
         echo "<td><blink>{$nagios_host_status[$host['host_state']]}</blink></td>"; 
         echo "<td>{$host['duration']}</td>";
         echo "<td>{$host['current_attempt']}/{$host['max_attempts']}</td>";
@@ -196,7 +251,7 @@ if (count($known_hosts) > 0) {
         $known_host_list[] = "{$this_host['hostname']} " . print_tag($this_host['tag']) . " <span class='known_hosts_desc'>({$status_text} - {$this_host['duration']})</span>";
     } 
     $known_host_list_complete = implode(" &bull; ", $known_host_list);
-    echo "<table class='widetable known_hosts'><tr><td><b>Known Problem Hosts: </b> {$known_host_list_complete}</td></tr></table>";
+    #echo "<table class='widetable known_hosts'><tr><td><b>Known Problem Hosts: </b> {$known_host_list_complete}</td></tr></table>";
 }
 ?>
 
@@ -206,12 +261,11 @@ if (count($known_hosts) > 0) {
 <div class="frame">
     <div class="section">
       <div class="header">
-        <h3>Service status</h3>
         <p class="totals"><b>Total:</b> <?php foreach($service_summary as $state => $count) { echo "<span class='{$nagios_service_status_colour[$state]}'>{$count}</span> "; } ?></p>
     </div>
 <?php if (count($broken_services) > 0) { ?>
     <table class="widetable" id="broken_services">
-    <tr><th width="30%">Hostname</th><th width="40%">Service</th><th width="15%">State</th><th width="10%">Duration</th><th width="5%">Attempt</th></tr>
+    <tr><th width="10%">Hostname</th><th>Service</th><th width="15%" style="display:none;">State</th><th width="10%">Duration</th><th width="4%" style='display:none;'>Attempt</th></tr>
 <?php
     if ($sort_by_time) {
         usort($broken_services,'cmp_last_state_change');
@@ -220,13 +274,18 @@ if (count($known_hosts) > 0) {
         if ($service['is_hard']) { $soft_tag = "</blink>"; $blink_tag = "<blink>"; } else { $soft_tag = "(soft)"; $blink_tag = ""; }
         $controls = build_controls($service['tag'], $service['hostname'], $service['service_name']);
         echo "<tr>";
-        echo "<td>{$service['hostname']} " . print_tag($service['tag']) . " <span class='controls'>{$controls}</span></td>";
-        echo "<td class='bold {$nagios_service_status_colour[$service['service_state']]}'>{$service['service_name']}<span class='detail'>{$service['detail']}</span></td>";
-        echo "<td class='{$nagios_service_status_colour[$service['service_state']]}'>{$blink_tag}{$nagios_service_status[$service['service_state']]} {$soft_tag}</td>";
-        echo "<td>{$service['duration']}</td>";
-        echo "<td>{$service['current_attempt']}/{$service['max_attempts']}</td>";
+        echo "<td width='10%'>{$service['hostname']} " . print_tag($service['tag']) . " <span class='controls'>{$controls}</span></td>";
+        //Supress duplicates
+	$service['detail'] = str_replace($service['service_name'],"",$service['detail']);
+	echo "<td class='service_text {$nagios_service_status_colour[$service['service_state']]}'>
+		{$service['service_name']}
+			<span class='detail'> {$service['detail']}</span></td>";
+        echo "<td style='display:none;' class='{$nagios_service_status_colour[$service['service_state']]}'>{$blink_tag}{$nagios_service_status[$service['service_state']]} {$soft_tag}</td>";
+        echo "<td>".sanitizeDurationMetrics($service['duration'])."</td>";
+        echo "<td style='display:none;'>{$service['current_attempt']}/{$service['max_attempts']}</td>";
         echo "</tr>";
     }
+   
 ?>
     </table>
 <?php } else { ?>
@@ -237,13 +296,13 @@ if ($sort_by_time) {
     usort($known_services,'cmp_last_state_change');
 }
 
-if (count($known_services) > 0) { ?>
-    <h4>Known Service Problems</h4>
+#if (count($known_services) > 0) { ?>
+<!--    <h4>Known Service Problems</h4>
     <table class="widetable known_service" id="known_services">
     <tr><th width="30%">Hostname</th><th width="37%">Service</th><th width="18%">State</th><th width="10%">Duration</th><th width="5%">Attempt</th></tr>
 <?php
     
-    foreach($known_services as $service) {
+    /*foreach($known_services as $service) {
         if ($service['is_ack']) $status_text = "ack";
         if ($service['is_downtime']) $status_text = "downtime {$service['downtime_remaining']}";
         if (!$service['is_enabled']) $status_text = "disabled";
@@ -254,11 +313,11 @@ if (count($known_services) > 0) { ?>
         echo "<td>{$service['duration']}</td>";
         echo "<td>{$service['current_attempt']}/{$service['max_attempts']}</td>";
         echo "</tr>";
-    }
+    }*/
 ?>
 
     </table>
-<?php } ?>
+<?php //} ?>
 
     </div>
 </div>
@@ -291,6 +350,7 @@ function cmp_last_state_change($a,$b) {
 }
 
 function build_controls($tag, $host, $service) {
+	return false;
     $controls = '<div class="btn-group">';
     $controls .= "<a href='#' onClick=\"$.post('do_action.php', { 
         nag_host: '{$tag}', hostname: '{$host}', service: '{$service}', action: 'ack' }, function(data) { showInfo(data) } ); return false;\" class='btn btn-mini'>
