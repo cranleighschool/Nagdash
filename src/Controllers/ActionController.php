@@ -18,6 +18,13 @@ class ActionController
     {
         $supported_methods = ['ack', 'downtime', 'enable', 'disable'];
 
+        if (! isset($_SESSION['csrf_token'])
+            || ! isset($_POST['csrf_token'])
+            || ! hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
+        ) {
+            return 'Invalid or missing CSRF token.';
+        }
+
         if (! isset($_POST['nag_host'])) {
             return 'Are you calling this manually? This should be called by Nagdash only.';
         }

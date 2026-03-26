@@ -49,7 +49,8 @@ function nagios_action(tag, host, service, action, minutes) {
                             hostname: host,
                             service: service,
                             action: action,
-                            duration: minutes}, function(data) { showInfo(data) } );
+                            duration: minutes,
+                            csrf_token: document.csrf_token }, function(data) { showInfo(data) } );
 }
 
 
