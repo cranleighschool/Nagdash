@@ -1,6 +1,6 @@
 <?php
 
-namespace Nagdash\Controllers;
+namespace CranleighSchool\NagDash\Controllers;
 
 class SettingsController
 {

@@ -1,6 +1,8 @@
 <?php
 
-namespace Nagdash\Controllers;
+namespace CranleighSchool\NagDash\Controllers;
+
+use CranleighSchool\NagDash\NagdashHelpers;
 
 class DashboardController
 {
@@ -59,35 +61,35 @@ class DashboardController
             $curl_stats = [];
             $api_cols = [];
         } else {
-            [$state, $api_cols, $errors, $curl_stats] = \NagdashHelpers::get_nagios_host_data(
+            [$state, $api_cols, $errors, $curl_stats] = NagdashHelpers::get_nagios_host_data(
                 $this->nagios_hosts, $unwanted_hosts, $this->api_type
             );
         }
 
-        \NagdashHelpers::deep_ksort($state);
+        NagdashHelpers::deep_ksort($state);
 
         [$host_summary, $service_summary, $down_hosts, $known_hosts, $known_services, $broken_services]
-            = \NagdashHelpers::parse_nagios_host_data(
+            = NagdashHelpers::parse_nagios_host_data(
                 $state, $filter, $api_cols, $filter_select_last_state_change
             );
 
         if (($filter_sort_by_time === 1) || $this->sort_by_time) {
-            usort($broken_services, [\NagdashHelpers::class, 'cmp_last_state_change']);
-            usort($known_services, [\NagdashHelpers::class, 'cmp_last_state_change']);
+            usort($broken_services, [NagdashHelpers::class, 'cmp_last_state_change']);
+            usort($known_services, [NagdashHelpers::class, 'cmp_last_state_change']);
         }
 
         $host_count = count($this->nagios_hosts);
         foreach ($down_hosts as &$host) {
-            $host['tag_html'] = \NagdashHelpers::print_tag($host['tag'], $host_count);
+            $host['tag_html'] = NagdashHelpers::print_tag($host['tag'], $host_count);
         }
         foreach ($known_hosts as &$host) {
-            $host['tag_html'] = \NagdashHelpers::print_tag($host['tag'], $host_count);
+            $host['tag_html'] = NagdashHelpers::print_tag($host['tag'], $host_count);
         }
         foreach ($broken_services as &$service) {
-            $service['tag_html'] = \NagdashHelpers::print_tag($service['tag'], $host_count);
+            $service['tag_html'] = NagdashHelpers::print_tag($service['tag'], $host_count);
         }
         foreach ($known_services as &$service) {
-            $service['tag_html'] = \NagdashHelpers::print_tag($service['tag'], $host_count);
+            $service['tag_html'] = NagdashHelpers::print_tag($service['tag'], $host_count);
         }
 
         return [

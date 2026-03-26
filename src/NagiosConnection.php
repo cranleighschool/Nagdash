@@ -1,14 +1,17 @@
 <?php
 
-interface iNagiosConnection
+namespace CranleighSchool\NagDash;
+
+interface NagiosConnection
 {
     /**
      * get the current state of the nagios instance
      *
      * Returns an array of the form
-     *  ["errors" => true/false, "details" => "message"]
+     *
+     * @return array{errors: bool, details: string}
      */
-    public function getState();
+    public function getState(): array;
 
     /**
      * acknowledge a problem
@@ -23,10 +26,11 @@ interface iNagiosConnection
      *              "duration" => $duration
      *              ]
      *
-     * Returns an array of the form
-     *  ["errors" => true/false, "details" => "message"]
+     * @param  array{host: string, service: string, comment: string, author: string, duration: int}  $details
+     *
+     * @return array{errors: bool, details: string}
      */
-    public function acknowledge($details);
+    public function acknowledge(array $details): array;
 
     /**
      * enable notifications for a host/service
@@ -37,7 +41,7 @@ interface iNagiosConnection
      * Returns an array of the form
      *  ["errors" => true/false, "details" => "message"]
      */
-    public function enableNotifications($target);
+    public function enableNotifications(array $target): array;
 
     /**
      * disable notifications for a host/service
@@ -48,7 +52,7 @@ interface iNagiosConnection
      * Returns an array of the form
      *  ["errors" => true/false, "details" => "message"]
      */
-    public function disableNotifications($target);
+    public function disableNotifications(array $target): array;
 
     /**
      * set downtime for a host or service
@@ -59,5 +63,5 @@ interface iNagiosConnection
      * Returns an array of the form
      *  ["errors" => true/false, "details" => "message"]
      */
-    public function setDowntime($target);
+    public function setDowntime(array $target): array;
 }

@@ -1,9 +1,8 @@
 <?php
 
-require_once 'NagiosConnection.php';
-require_once 'utils.php';
+namespace CranleighSchool\NagDash;
 
-class NagiosLivestatus implements iNagiosConnection
+class NagiosLivestatus extends AbstractNagiosConnection
 {
     public function __construct($hostname, $port = 6315, $protocol = 'https',
         $url = null)
@@ -14,7 +13,7 @@ class NagiosLivestatus implements iNagiosConnection
         $this->url = empty($url) ? '/livestatus-api' : $url;
     }
 
-    public function getState()
+    public function getState(): array
     {
         $hostname = $this->hostname;
         $port = $this->port;
@@ -28,7 +27,7 @@ class NagiosLivestatus implements iNagiosConnection
         );
 
         if ($ret['errors'] == true) {
-            return $ret['details'];
+            return $ret;
         }
         $state = $ret['details']['content'];
         $curl_stats = $ret['curl_stats'];
@@ -65,44 +64,7 @@ class NagiosLivestatus implements iNagiosConnection
         ];
     }
 
-    /**
-     * acknowledge a problem
-     *
-     * Parameter
-     *  $details - array with problem meta data like
-     *             [
-     *              "hostname" => $host,
-     *              "service" => $service,
-     *              "comment" => $comment,
-     *              "author" => $author,
-     *              "duration" => $duration
-     *              ]
-     *
-     * Returns an array of the form
-     *  ["errors" => true/false, "details" => "message"]
-     */
-    public function acknowledge($details)
-    {
-        return $this->post_to_api('/acknowledge_problem', $details);
-
-    }
-
-    public function enableNotifications($details)
-    {
-        return $this->post_to_api('/enable_notifications', $details);
-    }
-
-    public function disableNotifications($details)
-    {
-        return $this->post_to_api('/disable_notifications', $details);
-    }
-
-    public function setDowntime($details)
-    {
-        return $this->post_to_api('/schedule_downtime', $details);
-    }
-
-    public function getColumnMapping()
+    public function getColumnMapping(): array
     {
         return [
             'state' => 'state',
@@ -113,45 +75,8 @@ class NagiosLivestatus implements iNagiosConnection
         ];
     }
 
-    /**
-     * send an action to the api
-     *
-     * Parameters:
-     *  $method  - endpoint to POST to
-     *  $details - details about hostname, service, etc
-     *  $payload - the payload to send
-     *
-     * Returns ["errors" => true/false, "details" => "details"]
-     */
-    public function post_to_api($method, $details)
+    protected function buildActionUrl(string $method): string
     {
-        $payload = json_encode($details);
-        $params = ['http' => [
-            'method' => 'POST',
-            'header' => 'Content-type: application/json',
-            'content' => $payload,
-        ],
-        ];
-        $service = $details['service'];
-        $hostname = $details['host'];
-        $context = stream_context_create($params);
-        $nagios_url = "{$this->protocol}://{$this->hostname}:{$this->port}/{$this->url}/{$method}";
-        if (! $result = file_get_contents($nagios_url, false, $context)) {
-            $error = error_get_last();
-
-            return ['errors' => true,
-                'details' => "Command {$method} failed! <pre>{$error}</pre>"];
-        } else {
-            $return = json_decode($result);
-            if ($return->success) {
-                $service = (isset($service)) ? "-> {$service}" : null;
-
-                return ['errors' => true,
-                    'details' => "Command {$method} succeeded on {$hostname} {$service}"];
-            } else {
-                return ['errors' => true,
-                    'details' => "Command {$method} failed! <pre>{$return->content}</pre>"];
-            }
-        }
+        return "{$this->protocol}://{$this->hostname}:{$this->port}/{$this->url}/{$method}";
     }
 }

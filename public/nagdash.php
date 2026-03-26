@@ -7,7 +7,7 @@ if (! function_exists('curl_init')) {
     exit('ERROR: The PHP curl extension must be installed for Nagdash to function');
 }
 
-$controller = new \Nagdash\Controllers\DashboardController([
+$controller = new \CranleighSchool\NagDash\Controllers\DashboardController([
     'nagios_hosts' => $nagios_hosts,
     'api_type' => $api_type,
     'filter' => $filter ?? '',

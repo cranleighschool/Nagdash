@@ -1,5 +1,10 @@
 <?php
 
+namespace CranleighSchool\NagDash;
+
+use Carbon\Carbon;
+use InvalidArgumentException;
+
 class NagdashHelpers
 {
     public static function print_tag($tag_name, $nagios_hostcount)
@@ -24,7 +29,7 @@ class NagdashHelpers
      *  [ "errors" => true/false, "details" => "json_decoded data",
      *    "curl_stats" => "stats from the curl call"]
      */
-    public static function fetch_json($hostname, $port, $protocol, $url)
+    public static function fetch_json($hostname, $port, $protocol, $url): array
     {
 
         $ch = curl_init("$protocol://$hostname:$port$url");
@@ -144,7 +149,7 @@ class NagdashHelpers
      *
      * Returns an array of [$state, $mapping, $curl_stats]
      */
-    public static function fetch_state($hostname, $port, $protocol, $url, $api_type)
+    public static function fetch_state($hostname, $port, $protocol, $url, $api_type): array
     {
 
         $nagios_api = NagdashHelpers::get_nagios_api_object($api_type, $hostname,
@@ -155,7 +160,7 @@ class NagdashHelpers
             case 'livestatus':
                 $ret = $nagios_api->getState();
                 $state = $ret['details'];
-                $curl_stats = $ret['curl_stats'];
+                $curl_stats = $ret['curl_stats'] ?? [];
                 $mapping = $nagios_api->getColumnMapping();
                 break;
             case 'nagios-api':
@@ -165,9 +170,11 @@ class NagdashHelpers
                 } else {
                     $state = $ret['details']['content'];
                 }
-                $curl_stats = $ret['curl_stats'];
+                $curl_stats = $ret['curl_stats'] ?? [];
                 $mapping = $nagios_api->getColumnMapping();
                 break;
+            default:
+                throw new InvalidArgumentException("Unknown API type [$api_type]");
         }
 
         return [$state, $mapping, $curl_stats];
@@ -177,13 +184,13 @@ class NagdashHelpers
      * get the host data from all nagios instances
      *
      * Parameters:
-     *  $nagios_hosts   - nagios hosts configuration array
+     *  $nagios_hosts - nagios hosts configuration array
      *  $unwanted_hosts - list of unwanted tags for the user
-     *  $api_type       - API type to use
+     *  $api_type - API type to use
      *
      *  Returns [$state, $api_cols, $errors, $curl_stats]
      */
-    public static function get_nagios_host_data($nagios_hosts, $unwanted_hosts, $api_type)
+    public static function get_nagios_host_data($nagios_hosts, $unwanted_hosts, $api_type): array
     {
         $state = [];
         $errors = [];
@@ -194,7 +201,7 @@ class NagdashHelpers
             if (! in_array($host['tag'], $unwanted_hosts)) {
                 [$host_state, $api_cols, $local_curl_stats] = NagdashHelpers::fetch_state($host['hostname'],
                     $host['port'], $host['protocol'], isset($host['url']) ? $host['url'] : null, $api_type);
-                $curl_stats = array_merge($curl_stats, $local_curl_stats);
+                $curl_stats = array_merge($curl_stats, $local_curl_stats ?? []);
                 if (is_string($host_state)) {
                     $errors[] = "Could not connect to API on host {$host['hostname']}, port {$host['port']}: {$host_state}";
                 } else {
@@ -220,7 +227,7 @@ class NagdashHelpers
      *
      *  Returns [$host_summary, $service_summary, $down_hosts, $known_hosts, $known_services, $broken_services];
      */
-    public static function parse_nagios_host_data($state, $filter, $api_cols, $filter_select_last_state_change)
+    public static function parse_nagios_host_data($state, $filter, $api_cols, $filter_select_last_state_change): array
     {
 
         $host_summary = [];
@@ -251,7 +258,7 @@ class NagdashHelpers
                         array_push($$array_name, [
                             'hostname' => $hostname,
                             'host_state' => $host_detail[$api_cols['state']],
-                            'duration' => timeago($host_detail['last_state_change']),
+                            'duration' => Carbon::createFromTimestamp($host_detail['last_state_change'])->diffForHumans(),
                             'detail' => $host_detail['plugin_output'],
                             'current_attempt' => $host_detail['current_attempt'],
                             'max_check_attempts' => $host_detail[$api_cols['max_attempts']],
@@ -294,7 +301,7 @@ class NagdashHelpers
                         ) {
                             if (count($downtimes) > 0) {
                                 $downtime_info = array_pop($downtimes);
-                                $downtime_remaining = '- '.timeago($downtime_info['end_time']).' left';
+                                $downtime_remaining = '- '.Carbon::createFromTimestamp($downtime_info['end_time'])->diffForHumans().' left';
                             }
                         }
                         if ($service_detail['last_state_change'] >= $state_change_backstop) {
@@ -302,7 +309,7 @@ class NagdashHelpers
                                 'hostname' => $hostname,
                                 'service_name' => $service_name,
                                 'service_state' => $service_detail[$api_cols['state']],
-                                'duration' => timeago($service_detail['last_state_change']),
+                                'duration' => Carbon::createFromTimestamp($service_detail['last_state_change'])->diffForHumans(),
                                 'last_state_change' => $service_detail['last_state_change'],
                                 'detail' => $service_detail['plugin_output'],
                                 'current_attempt' => $service_detail['current_attempt'],
@@ -345,8 +352,10 @@ class NagdashHelpers
                 $nagios_api = new NagiosLivestatus($hostname, $port, $protocol, $url);
                 break;
             case 'nagios-api':
-                $nagios_api = new NagiosAPI($hostname, $port, $protocol, $url);
+                $nagios_api = new NagiosApi($hostname, $port, $protocol, $url);
                 break;
+            default:
+                throw new InvalidArgumentException("Unknown API type [$api_type]");
         }
 
         return $nagios_api;

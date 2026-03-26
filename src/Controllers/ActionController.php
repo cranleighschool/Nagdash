@@ -1,6 +1,8 @@
 <?php
 
-namespace Nagdash\Controllers;
+namespace CranleighSchool\NagDash\Controllers;
+
+use CranleighSchool\NagDash\NagdashHelpers;
 
 class ActionController
 {
@@ -47,7 +49,7 @@ class ActionController
         $nagios_api = null;
         foreach ($this->nagios_hosts as $host) {
             if ($host['tag'] === $nagios_instance) {
-                $nagios_api = \NagdashHelpers::get_nagios_api_object(
+                $nagios_api = NagdashHelpers::get_nagios_api_object(
                     $this->api_type,
                     $host['hostname'],
                     $host['port'],
