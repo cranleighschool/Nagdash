@@ -30,5 +30,5 @@ echo nagdash_twig()->render('layout.twig', [
     'cookie_sort_by_time' => isset($_COOKIE['sort_by_time']) ? (int) $_COOKIE['sort_by_time'] : null,
     'cookie_sort_descending' => isset($_COOKIE['sort_descending']) ? (int) $_COOKIE['sort_descending'] : null,
     'cookie_theme' => $_COOKIE['nagdash_theme'] ?? null,
-    'theme' => $_COOKIE['nagdash_theme'] ?? 'auto',
+    'theme' => in_array($_GET['theme'] ?? '', ['light', 'dark', 'auto']) ? $_GET['theme'] : ($_COOKIE['nagdash_theme'] ?? 'auto'),
 ]);

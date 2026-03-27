@@ -34,7 +34,7 @@
                         <td>{{ host.hostname }} {{ host.tag_html|raw }} <span class="controls">
                     {% include 'partials/controls.twig' with {'tag': host.tag, 'host': host.hostname, 'service': ''} %}
                 </span></td>
-                        <td>
+                        <td style="text-align: center">
                             <blink>{{ nagios_host_status[host.host_state] }}</blink>
                         </td>
                         <td class="desc">{{ host.detail }}</td>
