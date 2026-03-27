@@ -35,7 +35,7 @@ th {
 }
 
 .bold {
-  font-weight: bold;
+  font-weight: 700;
 }
 
 .status_green {
@@ -139,8 +139,10 @@ table#broken_hosts tr td span.controls {
 }
 
 table#broken_services tr td span.detail {
-  display: block;
-  font-weight: lighter;
+  margin-left: 5px;
+  display: inline;
+  font-size: 0.8em;
+  opacity: 0.75;
 }
 
 /*table#broken_services tr:hover td span.detail {*/

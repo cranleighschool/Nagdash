@@ -22,10 +22,10 @@
             <table id="broken_hosts" class="widetable">
                 <tr>
                     <th>Hostname</th>
-                    <th width="150px">State</th>
+                    <th>State</th>
                     <th>Duration</th>
-                    <th>Attempts</th>
-                    {#                <th>Detail</th> #}
+{#                    <th>Attempts</th>#}
+                                    <th>Detail</th>
                 </tr>
                 {% for host in down_hosts %}
                     <tr id="host_row" class="{{ nagios_host_status_colour[host.host_state] }}">
@@ -88,7 +88,7 @@
                 <tr>
                     <th>Hostname</th>
                     <th>Service</th>
-                    <th width="10%">Duration</th>
+                    <th width="6%">Duration</th>
                     {#                <th width="5%">Attempt</th> #}
                 </tr>
                 {% for service in broken_services %}
