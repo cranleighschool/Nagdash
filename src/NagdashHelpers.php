@@ -3,6 +3,7 @@
 namespace CranleighSchool\NagDash;
 
 use Carbon\Carbon;
+use Carbon\CarbonInterface;
 use InvalidArgumentException;
 
 class NagdashHelpers
@@ -34,7 +35,7 @@ class NagdashHelpers
         return $value;
     }
 
-    public static function print_tag(string $tag_name, int $nagios_hostcount)
+public static function print_tag(string $tag_name, int $nagios_hostcount)
     {
         if ($nagios_hostcount > 1) {
             return "<span class='tag tag_{$tag_name}'>{$tag_name}</span>";
@@ -275,7 +276,7 @@ class NagdashHelpers
                         $$array_name[] = [
                             'hostname' => $hostname,
                             'host_state' => $host_detail[$api_cols['state']],
-                            'duration' => Carbon::createFromTimestamp($host_detail['last_state_change'])->diffForHumans(),
+                            'duration' => Carbon::createFromTimestamp($host_detail['last_state_change'])->diffForHumans(null, CarbonInterface::DIFF_ABSOLUTE),
                             'detail' => $host_detail['plugin_output'],
                             'current_attempt' => $host_detail['current_attempt'],
                             'max_check_attempts' => $host_detail[$api_cols['max_attempts']],
@@ -318,7 +319,7 @@ class NagdashHelpers
                         ) {
                             if (count($downtimes) > 0) {
                                 $downtime_info = array_pop($downtimes);
-                                $downtime_remaining = '- '.Carbon::createFromTimestamp($downtime_info['end_time'])->diffForHumans().' left';
+                                $downtime_remaining = '- '.Carbon::createFromTimestamp($downtime_info['end_time'])->diffForHumans(null, CarbonInterface::DIFF_ABSOLUTE).' left';
                             }
                         }
                         if ($service_detail['last_state_change'] >= $state_change_backstop) {
@@ -326,7 +327,7 @@ class NagdashHelpers
                                 'hostname' => $hostname,
                                 'service_name' => $service_name,
                                 'service_state' => $service_detail[$api_cols['state']],
-                                'duration' => Carbon::createFromTimestamp($service_detail['last_state_change'])->diffForHumans(),
+                                'duration' => Carbon::createFromTimestamp($service_detail['last_state_change'])->diffForHumans(null, CarbonInterface::DIFF_ABSOLUTE),
                                 'last_state_change' => $service_detail['last_state_change'],
                                 'detail' => $service_detail['plugin_output'],
                                 'current_attempt' => $service_detail['current_attempt'],

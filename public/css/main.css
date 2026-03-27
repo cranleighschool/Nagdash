@@ -21,9 +21,6 @@ table {
   border: 1px solid #c6c6c6;
   background-color: #f0f0f0;
   border-collapse: separate;
-  *border-collapse: collapse;
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
   border-radius: 4px;
 }
 
@@ -91,13 +88,13 @@ th {
   font-size: 0.6em;
   color: white;
   padding: 4px;
-  -webkit-border-radius: 5px;
+  border-radius: 5px;
 }
 
 .tag_label {
   color: white;
   padding: 10px 30px;
-  -webkit-border-radius: 5px;
+  border-radius: 5px;
 }
 
 div.frame {
@@ -115,8 +112,6 @@ div.header h3 {
   border: 1px #848484 solid;
   position: absolute;
   background: #f0f0f0;
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
   border-radius: 4px;
   margin-top: 5px;
   margin-bottom: 5px;
@@ -124,6 +119,13 @@ div.header h3 {
 
 div.header .totals {
   float: right;
+}
+
+table#broken_hosts td:first-child,
+table#broken_services td:first-child,
+table#known_services td:first-child {
+  white-space: nowrap;
+  width: 1%;
 }
 
 table#broken_services tr td span.controls {
@@ -163,8 +165,6 @@ table#broken_hosts tr:hover td span.controls {
   left: 50%;
   margin-left: -200px;
   border: 1px #848484 solid;
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
   border-radius: 4px;
   margin-top: -75px;
   background: #f0f0f0;
@@ -184,8 +184,6 @@ table#broken_hosts tr:hover td span.controls {
   left: 50%;
   margin-left: -150px;
   border: 1px #848484 solid;
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
   border-radius: 4px;
   background: #f0f0f0;
   font-family: HelveticaNeue-Medium, Helvetica, Arial, sans-serif;

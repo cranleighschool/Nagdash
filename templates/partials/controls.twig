@@ -1,22 +1,24 @@
 <div class="btn-group">
-    <a href="#" onclick="nagios_action('{{ tag }}', '{{ host }}', '{{ service }}', 'ack'); return false;" class="btn btn-mini">
-        <i class="icon-check"></i> Ack
+    <a href="#" onclick="nagios_action('{{ tag }}', '{{ host }}', '{{ service }}', 'ack'); return false;" class="btn btn-sm btn-light">
+        <i class="bi bi-check"></i> Ack
     </a>
     {% if service == '' %}
-    <a href="#" onclick="nagios_action('{{ tag }}', '{{ host }}', '{{ service }}', 'disable'); return false;" class="btn btn-mini">
-        <i class="icon-volume-off"></i> Silence
+    <a href="#" onclick="nagios_action('{{ tag }}', '{{ host }}', '{{ service }}', 'disable'); return false;" class="btn btn-sm btn-light">
+        <i class="bi bi-volume-mute"></i> Silence
     </a>
     {% else %}
-    <a href="#" onclick="nagios_action('{{ tag }}', '{{ host }}', '{{ service }}', 'enable'); return false;" class="btn btn-mini">
-        <i class="icon-volume-off"></i> Unsilence
+    <a href="#" onclick="nagios_action('{{ tag }}', '{{ host }}', '{{ service }}', 'enable'); return false;" class="btn btn-sm btn-light">
+        <i class="bi bi-volume-mute"></i> Unsilence
     </a>
     {% endif %}
-    <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
-        <i class="icon-time"></i> Downtime <span class="caret"></span>
-    </a>
-    <ul class="dropdown-menu pull-right">
-        {% for name, minutes in timespans %}
-        <li><a href="#" onclick="nagios_action('{{ tag }}', '{{ host }}', '{{ service }}', 'downtime', '{{ minutes }}'); return false;">{{ name }}</a></li>
-        {% endfor %}
-    </ul>
+    <div class="btn-group">
+        <a class="btn btn-sm btn-light dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button">
+            <i class="bi bi-clock"></i> Downtime
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end">
+            {% for name, minutes in timespans %}
+            <li><a class="dropdown-item" href="#" onclick="nagios_action('{{ tag }}', '{{ host }}', '{{ service }}', 'downtime', '{{ minutes }}'); return false;">{{ name }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
 </div>
