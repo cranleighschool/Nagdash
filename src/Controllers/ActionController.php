@@ -6,16 +6,6 @@ use CranleighSchool\NagDash\NagdashHelpers;
 
 class ActionController
 {
-    private array $nagios_hosts;
-
-    private string $api_type;
-
-    public function __construct(array $nagios_hosts, string $api_type)
-    {
-        $this->nagios_hosts = $nagios_hosts;
-        $this->api_type = $api_type;
-    }
-
     public function handle(): string
     {
         $supported_methods = ['ack', 'downtime', 'enable', 'disable'];
@@ -47,10 +37,10 @@ class ActionController
         ];
 
         $nagios_api = null;
-        foreach ($this->nagios_hosts as $host) {
+        foreach (NagdashHelpers::config('nagios_hosts', []) as $host) {
             if ($host['tag'] === $nagios_instance) {
                 $nagios_api = NagdashHelpers::get_nagios_api_object(
-                    $this->api_type,
+                    NagdashHelpers::config('api_type'),
                     $host['hostname'],
                     $host['port'],
                     $host['protocol'],

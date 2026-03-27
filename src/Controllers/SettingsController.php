@@ -2,15 +2,10 @@
 
 namespace CranleighSchool\NagDash\Controllers;
 
+use CranleighSchool\NagDash\NagdashHelpers;
+
 class SettingsController
 {
-    private array $nagios_hosts;
-
-    public function __construct(array $nagios_hosts)
-    {
-        $this->nagios_hosts = $nagios_hosts;
-    }
-
     public function handle(): void
     {
         if (! isset($_SERVER['HTTP_REFERER'])) {
@@ -20,7 +15,7 @@ class SettingsController
         }
 
         $return_path = parse_url($_SERVER['HTTP_REFERER'], PHP_URL_PATH);
-        $hosts = array_column($this->nagios_hosts, 'tag');
+        $hosts = array_column(NagdashHelpers::config('nagios_hosts', []), 'tag');
 
         $hostfilter = $_POST['hostfilter'] ?? '';
         unset($_POST['hostfilter']);

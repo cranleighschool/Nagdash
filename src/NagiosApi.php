@@ -4,9 +4,12 @@ namespace CranleighSchool\NagDash;
 
 class NagiosApi extends AbstractNagiosConnection
 {
-    public function __construct($hostname, $port = 6315, $protocol = 'https',
-        $url = null)
-    {
+    public function __construct(
+        string $hostname,
+        int $port = 6315,
+        string $protocol = 'https',
+        ?string $url = null
+    ) {
         $this->hostname = $hostname;
         $this->port = $port;
         $this->protocol = $protocol;

@@ -1,53 +1,58 @@
 <?php
 // Config
 
-// Type of API
-// Supported values are nagios-api or livestatus
-$api_type = "nagios-api";
+return [
 
-// Your Nagios hosts
-$nagios_hosts = array(
-    array("hostname" => "nagios01.dc1.company.com", "port" => "6315", "protocol" => "http", "tag" => "DC1", "tagcolour" => "#336699"), 
-    array("hostname" => "nagios01.dc2.company.com", "port" => "6315", "protocol" => "http", "tag" => "DC2", "tagcolour" => "#696969"), 
-    array("hostname" => "nagios01.dc3.company.com", "port" => "6315", "protocol" => "http", "tag" => "DC3", "tagcolour" => "#4169E1"), 
-// and so on...    
-//  array("hostname" => "example.company.com", "port" => "6315", "protocol" => "http", "tag" => "HOST", "tagcolour" => "#FFA500"), 
-);
+    // Type of API
+    // Supported values are nagios-api or livestatus
+    'api_type' => 'nagios-api',
 
-// Globally filter out hosts using a regex, if you wish, or leave blank for all. 
-$filter = "";
+    // Your Nagios hosts
+    'nagios_hosts' => [
+        ['hostname' => 'nagios01.dc1.company.com', 'port' => '6315', 'protocol' => 'http', 'tag' => 'DC1', 'tagcolour' => '#336699'],
+        ['hostname' => 'nagios01.dc2.company.com', 'port' => '6315', 'protocol' => 'http', 'tag' => 'DC2', 'tagcolour' => '#696969'],
+        ['hostname' => 'nagios01.dc3.company.com', 'port' => '6315', 'protocol' => 'http', 'tag' => 'DC3', 'tagcolour' => '#4169E1'],
+        // and so on...
+        // ['hostname' => 'example.company.com', 'port' => '6315', 'protocol' => 'http', 'tag' => 'HOST', 'tagcolour' => '#FFA500'],
+    ],
 
-// Default downtime duration, measured in seconds, for scheduling downtime via the Nagdash interface.  
-$duration = 60*60;
+    // Globally filter out hosts using a regex, if you wish, or leave blank for all.
+    'filter' => '',
 
-// Show the floating spinner when Nagdash is being refreshed.
-$show_refresh_spinner = true;
+    // Default downtime duration, measured in seconds, for scheduling downtime via the Nagdash interface.
+    'duration' => 60 * 60,
 
-// Refresh rate
-$refresh_every_ms = 20000;
+    // Show the floating spinner when Nagdash is being refreshed.
+    'show_refresh_spinner' => true,
 
-// sort_by_time: Set this to true to sort by the last state change, e.g. how long the service has been broken.
-// If set to false, leave to default sorting by hostname instead.
-$sort_by_time = false;
+    // Refresh rate
+    'refresh_every_ms' => 20000,
 
-// To select by last state change, let's define some time ranges folks might
-// want to use when filtering events.
-$select_last_state_change_options = array(
-    0 => "N/A", # DO NOT MODIFY THIS VALUE
-    15 * 60 => "15 minutes",
-    60 * 60 => "1 hour",
-    60 * 60 * 12 => "12 hours",
-    60 * 60 * 24 => "1 day",
-    60 * 60 * 24 * 7 => "1 week"
-);
+    // sort_by_time: Set this to true to sort by the last state change, e.g. how long the service has been broken.
+    // If set to false, leave to default sorting by hostname instead.
+    'sort_by_time' => false,
 
-// Enables the <blink> tag on HARD service notifications. Enable if you want more eye-catching goodness
-$enable_blinking = false;
+    // To select by last state change, let's define some time ranges folks might
+    // want to use when filtering events.
+    'select_last_state_change_options' => [
+        0 => 'N/A', // DO NOT MODIFY THIS VALUE
+        15 * 60 => '15 minutes',
+        60 * 60 => '1 hour',
+        60 * 60 * 12 => '12 hours',
+        60 * 60 * 24 => '1 day',
+        60 * 60 * 24 * 7 => '1 week',
+    ],
 
-// Include more css after the default; useful for custom skin
-$extra_css = none;
+    // Enables the <blink> tag on HARD service notifications. Enable if you want more eye-catching goodness
+    'enable_blinking' => false,
 
-# For testing, uncomment this for some errors:
-//$mock_state_file = './test_data/state';
+    // Include more css after the default; useful for custom skin
+    'extra_css' => null,
+
+    // For testing, uncomment this for some errors:
+    // 'mock_state_file' => './test_data/state',
+    'mock_state_file' => null,
+
+];
 
 // End Config

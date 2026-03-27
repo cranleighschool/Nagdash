@@ -7,6 +7,33 @@ use InvalidArgumentException;
 
 class NagdashHelpers
 {
+    private static array $config = [];
+
+    public static function setConfig(array $config): void
+    {
+        self::$config = $config;
+    }
+
+    /**
+     * Get a config value by key, with optional dot notation for nested keys.
+     *
+     * Example: NagdashHelpers::config('nagios_hosts')
+     *          NagdashHelpers::config('nagios_hosts.0.hostname')
+     */
+    public static function config(string $key, $default = null)
+    {
+        $keys = explode('.', $key);
+        $value = self::$config;
+        foreach ($keys as $segment) {
+            if (! is_array($value) || ! array_key_exists($segment, $value)) {
+                return $default;
+            }
+            $value = $value[$segment];
+        }
+
+        return $value;
+    }
+
     public static function print_tag(string $tag_name, int $nagios_hostcount)
     {
         if ($nagios_hostcount > 1) {
@@ -72,9 +99,6 @@ class NagdashHelpers
         return $ret;
     }
 
-    /**
-     * @param array $arr
-     */
     public static function deep_ksort(array &$arr): void
     {
         if (isset($_COOKIE['sort_descending'])) {

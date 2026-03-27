@@ -4,9 +4,12 @@ namespace CranleighSchool\NagDash;
 
 class NagiosLivestatus extends AbstractNagiosConnection
 {
-    public function __construct($hostname, $port = 6315, $protocol = 'https',
-        $url = null)
-    {
+    public function __construct(
+        string $hostname,
+        int $port = 6315,
+        string $protocol = 'https',
+        ?string $url = null
+    ) {
         $this->hostname = $hostname;
         $this->port = $port;
         $this->protocol = $protocol;
@@ -58,7 +61,8 @@ class NagiosLivestatus extends AbstractNagiosConnection
             }
         }
 
-        return ['errors' => false,
+        return [
+            'errors' => false,
             'details' => $state,
             'curl_stats' => $curl_stats,
         ];
