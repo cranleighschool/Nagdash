@@ -1,20 +1,21 @@
 body {
   font-family: HelveticaNeue-Medium, Helvetica, Arial, sans-serif;
-  margin: 5px;
+  margin: 4px;
+  font-size: 13px;
 }
 
 h3 {
-  margin-top: 3px;
-  margin-bottom: 3px;
-  font-size: 1.5em;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  font-size: 1.2em;
 }
 
 table,
 td {
   border: none;
-  padding: 2px;
-  border-spacing: 2px;
-  font-size: 1.1em;
+  padding: 1px 3px;
+  border-spacing: 1px;
+  font-size: 0.9em;
 }
 
 table {
@@ -27,6 +28,7 @@ table {
 th {
   border: 1px black solid;
   background-color: #d8d8d8;
+  padding: 1px 4px;
 }
 
 .widetable {
@@ -201,4 +203,101 @@ table#broken_hosts tr:hover td span.controls {
   float: left;
   margin-right: 10px;
   vertical-align: middle;
+}
+
+/* ── Two-column layout ─────────────────────────────────────── */
+.frames-row {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.frames-row .frame {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── Collapsible known problems ────────────────────────────── */
+h4.known-problems-toggle {
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.85em;
+  margin: 4px 0 2px;
+  color: #555;
+}
+
+h4.known-problems-toggle .toggle-icon {
+  display: inline-block;
+  transition: transform 0.2s;
+  font-size: 0.7em;
+}
+
+h4.known-problems-toggle[aria-expanded="true"] .toggle-icon {
+  transform: rotate(90deg);
+}
+
+/* ── Dark mode ─────────────────────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #1a1a1a;
+    color: #d0d0d0;
+  }
+
+  table {
+    background-color: #252525;
+    border-color: #444;
+  }
+
+  th {
+    background-color: #333;
+    border-color: #555;
+    color: #ccc;
+  }
+
+  td {
+    color: #d0d0d0;
+  }
+
+  .totals {
+    background: #252525;
+    border-color: #555;
+    color: #d0d0d0;
+  }
+
+  #info-window,
+  #spinner {
+    background: #252525;
+    border-color: #555;
+    color: #d0d0d0;
+  }
+
+  .known_hosts {
+    background-color: #2e2e2e;
+    color: #ccc;
+  }
+
+  .known_hosts_desc {
+    color: #888;
+  }
+
+  h4.known-problems-toggle {
+    color: #999;
+  }
+
+  .status_green {
+    background-color: #1a6b1a;
+  }
+
+  .status_red {
+    background-color: #9b1c1c;
+  }
+
+  .status_yellow {
+    background-color: #7a6000;
+    color: #f0d070;
+  }
+
+  .status_grey {
+    background-color: #3a3a3a;
+  }
 }

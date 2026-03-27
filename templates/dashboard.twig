@@ -7,6 +7,7 @@
     <div id="info-window-text"></div>
 </div>
 
+<div class="sframes-row">
 <div class="frame">
     <div class="section">
         <div class="header">
@@ -116,7 +117,10 @@
         {% endif %}
 
         {% if known_services|length > 0 %}
-            <h4>Known Service Problems</h4>
+            <h4 class="known-problems-toggle" data-bs-toggle="collapse" data-bs-target="#known_services_collapse" aria-expanded="false">
+                <span class="toggle-icon">&#9654;</span> Known Service Problems ({{ known_services|length }})
+            </h4>
+            <div id="known_services_collapse" class="collapse">
             <table class="widetable known_service" id="known_services">
                 <tr>
                     <th>Hostname</th>
@@ -141,10 +145,12 @@
                     </tr>
                 {% endfor %}
             </table>
+            </div>
         {% endif %}
 
     </div>
 </div>
+</div>{# end frames-row #}
 
 <!-- nagios-api server status: -->
 {% for server, stats in curl_stats %}
