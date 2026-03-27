@@ -24,9 +24,10 @@
                 <tr>
                     <th>Hostname</th>
                     <th>State</th>
+                    <th>Detail</th>
                     <th>Duration</th>
 {#                    <th>Attempts</th>#}
-                                    <th>Detail</th>
+
                 </tr>
                 {% for host in down_hosts %}
                     <tr id="host_row" class="{{ nagios_host_status_colour[host.host_state] }}">
@@ -36,9 +37,10 @@
                         <td>
                             <blink>{{ nagios_host_status[host.host_state] }}</blink>
                         </td>
+                        <td class="desc">{{ host.detail }}</td>
+
                         <td>{{ host.duration }}</td>
                         {#                <td>{{ host.current_attempt }}/{{ host.max_check_attempts }}</td> #}
-                        <td class="desc">{{ host.detail }}</td>
                     </tr>
                 {% endfor %}
             </table>
@@ -51,22 +53,66 @@
         {% endif %}
 
         {% if known_hosts|length > 0 %}
-            {% set known_host_items = [] %}
-            {% for host in known_hosts %}
-                {% set status_text = "" %}
-                {% if host.is_ack %}{% set status_text = "ack" %}{% endif %}
-                {% if host.is_downtime %}{% set status_text = "downtime" %}{% endif %}
-                {% if not host.is_enabled %}{% set status_text = "disabled" %}{% endif %}
-                {% set known_host_items = known_host_items|merge([
-                    host.hostname ~ ' ' ~ host.tag_html ~ "<span class='known_hosts_desc'>(" ~ status_text ~ " - " ~ host.duration ~ ")</span>"
-                ]) %}
-            {% endfor %}
-            <table class="widetable known_hosts">
+            <div class="header">
+                <h3>Known Problem Hosts</h3>
+            </div>
+            <table class="widetable known_hosts" id="known_hosts">
                 <tr>
-                    <td>
-                        <b>Known Problem Hosts: </b> {{ known_host_items|join(" &bull; ")|raw }}
-                    </td>
+                    <th>Hostname</th>
+                    <th>State</th>
+                    <th>Duration</th>
                 </tr>
+                {% for host in known_hosts %}
+                    {% set status_text = "" %}
+                    {% if host.is_ack %}{% set status_text = "ack" %}{% endif %}
+                    {% if host.is_downtime %}{% set status_text = "downtime" %}{% endif %}
+                    {% if not host.is_enabled %}{% set status_text = "disabled" %}{% endif %}
+                    <tr>
+                        <td>{{ host.hostname }} {{ host.tag_html|raw }}</td>
+                        <td class="{{ nagios_host_status_colour[host.host_state] }}">{{ nagios_host_status[host.host_state] }} ({{ status_text }})</td>
+                        <td>{{ host.duration }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% endif %}
+
+        {% if known_services|length > 0 %}
+            <div class="header">
+                <h3>Known Service Problems</h3>
+            </div>
+            <table class="widetable known_service" id="known_services">
+                <tr>
+                    <th>Hostname</th>
+                    <th>Service</th>
+                    <th>State</th>
+                    <th>Duration</th>
+                </tr>
+                {% for service in known_services %}
+                    {% set status_text = "" %}
+                    {% if service.is_ack %}{% set status_text = "ack" %}{% endif %}
+                    {% if service.is_downtime %}{% set status_text = "downtime " ~ service.downtime_remaining %}{% endif %}
+                    {% if not service.is_enabled %}{% set status_text = "disabled" %}{% endif %}
+                    <tr class="known_service">
+                        <td>{{ service.hostname }} {{ service.tag_html|raw }}</td>
+                        <td>{{ service.service_name }}</td>
+                        <td class="{{ nagios_service_status_colour[service.service_state] }}">{{ nagios_service_status[service.service_state] }} ({{ status_text }})</td>
+                        <td>{{ service.duration }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% endif %}
+
+        {% if old_broken_services|length > 0 %}
+            <div class="header">
+                <h3>Old Problem Services <small style="font-size: 0.7em">(over 2 months old)</small></h3>
+            </div>
+            <table class="widetable service-table" id="old_broken_services">
+                <tr>
+                    <th>Hostname</th>
+                    <th>Service</th>
+                    <th width="6%">Duration</th>
+                </tr>
+                {% include 'partials/service_rows.twig' with {'services': old_broken_services} %}
             </table>
         {% endif %}
 
@@ -85,28 +131,13 @@
         </div>
 
         {% if broken_services|length > 0 %}
-            <table class="widetable" id="broken_services">
+            <table class="widetable service-table" id="broken_services">
                 <tr>
                     <th>Hostname</th>
                     <th>Service</th>
                     <th width="6%">Duration</th>
-                    {#                <th width="5%">Attempt</th> #}
                 </tr>
-                {% for service in broken_services %}
-                    {% set soft_style = service.is_hard ? "" : "status_soft" %}
-                    {% set blink_open  = (service.is_hard and enable_blinking) ? "<blink>" : "" %}
-                    {% set blink_close = (service.is_hard and enable_blinking) ? "</blink>" : "" %}
-                    <tr>
-                        <td>{{ service.hostname }} {{ service.tag_html|raw }} <span class="controls">
-                    {% include 'partials/controls.twig' with {'tag': service.tag, 'host': service.hostname, 'service': service.service_name} %}
-                </span></td>
-                        <td class="{{ nagios_service_status_colour[service.service_state] }} {{ soft_style }}"><span
-                                    class="bold">{{ blink_open|raw }}{{ service.service_name }}</span><span
-                                    class="detail">{{ service.detail }}</span>{{ blink_close|raw }}</td>
-                        <td>{{ service.duration }}</td>
-                        {#                <td>{{ service.current_attempt }}/{{ service.max_attempts }}</td> #}
-                    </tr>
-                {% endfor %}
+                {% include 'partials/service_rows.twig' with {'services': broken_services} %}
             </table>
         {% else %}
             <table class="widetable status_green">
@@ -116,37 +147,6 @@
             </table>
         {% endif %}
 
-        {% if known_services|length > 0 %}
-            <h4 class="known-problems-toggle" data-bs-toggle="collapse" data-bs-target="#known_services_collapse" aria-expanded="false">
-                <span class="toggle-icon">&#9654;</span> Known Service Problems ({{ known_services|length }})
-            </h4>
-            <div id="known_services_collapse" class="collapse">
-            <table class="widetable known_service" id="known_services">
-                <tr>
-                    <th>Hostname</th>
-                    <th>Service</th>
-                    <th width="18%">State</th>
-                    <th width="10%">Duration</th>
-                    {#                <th width="5%">Attempt</th> #}
-                </tr>
-                {% for service in known_services %}
-                    {% set status_text = "" %}
-                    {% if service.is_ack %}{% set status_text = "ack" %}{% endif %}
-                    {% if service.is_downtime %}{% set status_text = "downtime " ~ service.downtime_remaining %}{% endif %}
-                    {% if not service.is_enabled %}{% set status_text = "disabled" %}{% endif %}
-                    <tr class="known_service">
-                        <td>{{ service.hostname }} {{ service.tag_html|raw }}</td>
-                        <td>{{ service.service_name }}</td>
-                        <td class="{{ nagios_service_status_colour[service.service_state] }}">{{ nagios_service_status[service.service_state] }}
-                            ({{ status_text }})
-                        </td>
-                        <td>{{ service.duration }}</td>
-                        {#                <td>{{ service.current_attempt }}/{{ service.max_attempts }}</td> #}
-                    </tr>
-                {% endfor %}
-            </table>
-            </div>
-        {% endif %}
 
     </div>
 </div>

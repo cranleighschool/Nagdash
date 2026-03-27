@@ -1,0 +1,14 @@
+{% for service in services %}
+    {% set soft_style = service.is_hard ? "" : "status_soft" %}
+    {% set blink_open  = (service.is_hard and enable_blinking) ? "<blink>" : "" %}
+    {% set blink_close = (service.is_hard and enable_blinking) ? "</blink>" : "" %}
+    <tr>
+        <td>{{ service.hostname }} {{ service.tag_html|raw }} <span class="controls">
+            {% include 'partials/controls.twig' with {'tag': service.tag, 'host': service.hostname, 'service': service.service_name} %}
+        </span></td>
+        <td class="{{ nagios_service_status_colour[service.service_state] }} {{ soft_style }}"><span
+                class="bold">{{ blink_open|raw }}{{ service.service_name }}</span><span
+                class="detail">{{ service.detail }}</span>{{ blink_close|raw }}</td>
+        <td class="nowrap">{{ service.duration }}</td>
+    </tr>
+{% endfor %}

@@ -27,6 +27,9 @@ class SettingsController
         setcookie('sort_by_time', isset($_POST['sort_by_time']) ? '1' : '0', time() + 60 * 60 * 24 * 365);
         setcookie('sort_descending', isset($_POST['sort_descending']) ? '1' : '0', time() + 60 * 60 * 24 * 365);
 
+        $theme = in_array($_POST['theme'] ?? '', ['light', 'dark', 'auto']) ? $_POST['theme'] : 'auto';
+        setcookie('nagdash_theme', $theme, time() + 60 * 60 * 24 * 365);
+
         $submitted_hosts = $_POST;
         $unwanted_hosts = array_diff($hosts, array_keys($submitted_hosts));
         setcookie('nagdash_unwanted_hosts', serialize($unwanted_hosts), time() + 60 * 60 * 24 * 365);

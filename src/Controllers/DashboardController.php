@@ -60,6 +60,10 @@ class DashboardController
             usort($known_services, [NagdashHelpers::class, 'cmp_last_state_change']);
         }
 
+        $two_months_ago = time() - (60 * 60 * 24 * 60);
+        $old_broken_services = array_filter($broken_services, fn($s) => $s['last_state_change'] < $two_months_ago);
+        $broken_services = array_filter($broken_services, fn($s) => $s['last_state_change'] >= $two_months_ago);
+
         $host_count = count(NagdashHelpers::config('nagios_hosts', []));
         foreach ($down_hosts as &$host) {
             $host['tag_html'] = NagdashHelpers::print_tag($host['tag'], $host_count);
@@ -68,6 +72,9 @@ class DashboardController
             $host['tag_html'] = NagdashHelpers::print_tag($host['tag'], $host_count);
         }
         foreach ($broken_services as &$service) {
+            $service['tag_html'] = NagdashHelpers::print_tag($service['tag'], $host_count);
+        }
+        foreach ($old_broken_services as &$service) {
             $service['tag_html'] = NagdashHelpers::print_tag($service['tag'], $host_count);
         }
         foreach ($known_services as &$service) {
@@ -82,6 +89,7 @@ class DashboardController
             'down_hosts' => $down_hosts,
             'known_hosts' => $known_hosts,
             'broken_services' => $broken_services,
+            'old_broken_services' => $old_broken_services,
             'known_services' => $known_services,
             'nagios_host_status' => [0 => 'UP', 1 => 'DOWN', 2 => 'UNREACHABLE'],
             'nagios_service_status' => [0 => 'OK', 1 => 'WARNING', 2 => 'CRITICAL', 3 => 'UNKNOWN'],

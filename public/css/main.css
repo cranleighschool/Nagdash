@@ -10,19 +10,22 @@ h3 {
   font-size: 1.2em;
 }
 
-table,
-td {
-  border: none;
-  padding: 1px 3px;
-  border-spacing: 1px;
-  font-size: 1em;
+.nowrap {
+  white-space: nowrap;
 }
 
 table {
-  border: 1px solid #c6c6c6;
   background-color: #f0f0f0;
+  border: 1px solid #c6c6c6;
   border-collapse: separate;
+  border-spacing: 1px;
   border-radius: 4px;
+  font-size: 1.1em;
+}
+
+td {
+  border: none;
+  padding: 1px 3px;
 }
 
 th {
@@ -73,9 +76,6 @@ th {
   color: black;
 }
 
-.known_hosts_desc {
-  color: #686868;
-}
 
 .desc {
   font-size: 0.8em;
@@ -103,24 +103,21 @@ div.frame {
   padding-bottom: 5px;
 }
 
-div.header h3 {
-  float: left;
+div.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding:2.5px;
 }
 
 .totals {
-  text-align: right;
-  right: 5px;
-  padding: 5px;
+  padding: 2px 6px;
+  margin: 0;
   border: 1px #848484 solid;
-  position: absolute;
   background: #f0f0f0;
   border-radius: 4px;
-  margin-top: 5px;
-  margin-bottom: 5px;
-}
-
-div.header .totals {
-  float: right;
+  white-space: nowrap;
+  font-size: 0.85em;
 }
 
 table#broken_hosts td:first-child,
@@ -130,7 +127,7 @@ table#known_services td:first-child {
   width: 1%;
 }
 
-table#broken_services tr td span.controls {
+table.service-table tr td span.controls {
   display: none;
   float: right;
 }
@@ -140,19 +137,14 @@ table#broken_hosts tr td span.controls {
   float: right;
 }
 
-table#broken_services tr td span.detail {
+table.service-table tr td span.detail {
   margin-left: 5px;
   display: inline;
   font-size: 0.8em;
   opacity: 0.75;
 }
 
-/*table#broken_services tr:hover td span.detail {*/
-/*  display: block;*/
-/*  font-size: 0.6em;*/
-/*}*/
-
-table#broken_services tr:hover td span.controls {
+table.service-table tr:hover td span.controls {
   display: inline-block;
 }
 
@@ -237,67 +229,116 @@ h4.known-problems-toggle[aria-expanded="true"] .toggle-icon {
 }
 
 /* ── Dark mode ─────────────────────────────────────────────── */
+/* "auto": follows OS preference; body.light suppresses it */
 @media (prefers-color-scheme: dark) {
-  body {
+  body:not(.light) {
     background-color: #1a1a1a;
     color: #d0d0d0;
   }
 
-  table {
+  body:not(.light) table {
     background-color: #252525;
     border-color: #444;
   }
 
-  th {
+  body:not(.light) th {
     background-color: #333;
     border-color: #555;
     color: #ccc;
   }
 
-  td {
+  body:not(.light) td {
     color: #d0d0d0;
   }
 
-  .totals {
+  body:not(.light) .totals {
     background: #252525;
     border-color: #555;
     color: #d0d0d0;
   }
 
-  #info-window,
-  #spinner {
+  body:not(.light) #info-window,
+  body:not(.light) #spinner {
     background: #252525;
     border-color: #555;
     color: #d0d0d0;
   }
 
-  .known_hosts {
+  body:not(.light) .known_hosts {
     background-color: #2e2e2e;
     color: #ccc;
   }
 
-  .known_hosts_desc {
-    color: #888;
-  }
-
-  h4.known-problems-toggle {
-    color: #999;
-  }
-
-  .status_green {
+  body:not(.light) .status_green {
     background-color: #1a6b1a;
   }
 
-  .status_red {
+  body:not(.light) .status_red {
     background-color: #9b1c1c;
   }
 
-  .status_yellow {
+  body:not(.light) .status_yellow {
     background-color: #7a6000;
     color: #f0d070;
   }
 
-  .status_grey {
+  body:not(.light) .status_grey {
     background-color: #3a3a3a;
   }
+}
+
+/* Explicit dark: force dark regardless of OS preference */
+body.dark {
+  background-color: #1a1a1a;
+  color: #d0d0d0;
+}
+
+body.dark table {
+  background-color: #252525;
+  border-color: #444;
+}
+
+body.dark th {
+  background-color: #333;
+  border-color: #555;
+  color: #ccc;
+}
+
+body.dark td {
+  color: #d0d0d0;
+}
+
+body.dark .totals {
+  background: #252525;
+  border-color: #555;
+  color: #d0d0d0;
+}
+
+body.dark #info-window,
+body.dark #spinner {
+  background: #252525;
+  border-color: #555;
+  color: #d0d0d0;
+}
+
+body.dark .known_hosts {
+  background-color: #2e2e2e;
+  color: #ccc;
+}
+
+body.dark .status_green {
+  background-color: #1a6b1a;
+}
+
+body.dark .status_red {
+  background-color: #9b1c1c;
+}
+
+body.dark .status_yellow {
+  background-color: #7a6000;
+  color: #f0d070;
+}
+
+body.dark .status_grey {
+  background-color: #3a3a3a;
 }

@@ -43,6 +43,19 @@
                     </fieldset>
 
                     <fieldset class="mt-3">
+                        <legend>Theme</legend>
+                        <div class="settings_group">
+                            {% for value, label in {'auto': 'Auto (OS)', 'light': 'Light', 'dark': 'Dark'} %}
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" id="theme_{{ value }}" name="theme" value="{{ value }}"
+                                    {% if cookie_theme == value or (cookie_theme is null and value == 'auto') %}checked{% endif %}>
+                                <label class="form-check-label" for="theme_{{ value }}">{{ label }}</label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="mt-3">
                         <legend>Sort options</legend>
                         {% if sort_by_time %}
                             {% set sort_by_time_checked = not (cookie_sort_by_time is not null and cookie_sort_by_time == 0) %}

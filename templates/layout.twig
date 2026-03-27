@@ -22,7 +22,7 @@ document.csrf_token = "{{ csrf_token }}";
 <link rel="stylesheet" href="{{ extra_css }}">
 {% endif %}
 </head>
-<body>
+<body{% if theme == 'dark' %} class="dark"{% elseif theme == 'light' %} class="light"{% endif %}>
   <div id="spinner"><h3><img src="images/ajax-loader.gif" align="absmiddle"> Refreshing...</h3></div>
   <div id="nagioscontainer"></div>
   {% include 'partials/settings.twig' %}

@@ -29,4 +29,6 @@ echo nagdash_twig()->render('layout.twig', [
     'cookie_select_last_state_change' => isset($_COOKIE['select_last_state_change']) ? (int) $_COOKIE['select_last_state_change'] : null,
     'cookie_sort_by_time' => isset($_COOKIE['sort_by_time']) ? (int) $_COOKIE['sort_by_time'] : null,
     'cookie_sort_descending' => isset($_COOKIE['sort_descending']) ? (int) $_COOKIE['sort_descending'] : null,
+    'cookie_theme' => $_COOKIE['nagdash_theme'] ?? null,
+    'theme' => $_COOKIE['nagdash_theme'] ?? 'auto',
 ]);
