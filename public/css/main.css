@@ -54,7 +54,8 @@
 body {
     font-family: "proxima-nova", sans-serif, HelveticaNeue-Medium, Helvetica, Arial, sans-serif;
     margin: 4px;
-    font-size: 13px;
+    font-size: 16px;
+	line-height:1.4em;
 }
 
 h3 {
